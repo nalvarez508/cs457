@@ -27,7 +27,7 @@ while (input != ".EXIT"):
   # Sets currently active database
   elif ("USE" in UserQuery):
     workingDB = inputCleaner("USE ")
-    os.system('cd ' + workingDB)
+    #os.system('cd ' + workingDB)
     print(f"Using database {workingDB}")
 
   # TODO
@@ -41,3 +41,12 @@ while (input != ".EXIT"):
     os.system('rm ' + workingDB + '/' + tName + '.csv')
     print(f"Removed table {tName} from database {workingDB}")
   
+  # TODO
+  # Returns table elements as specified
+  elif ("SELECT *" in UserQuery):
+    selection = inputCleaner("SELECT * ")
+
+  # TODO
+  # Modifies table by adding attribute
+  elif ("ALTER TABLE" in UserQuery):
+    alterCmd = inputCleaner("ALTER TABLE ")
