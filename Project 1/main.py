@@ -2,17 +2,24 @@ import os
 from table import Table
 
 workingDB = None
+UserQuery = None
+TableList = [None]
 
 def inputCleaner(wordToRemove): # Removes ; and command
-  UserQuery = UserQuery.replace(";", "")
-  return UserQuery.replace(wordToRemove, "")
+  query = UserQuery.replace(";", "")
+  return query.replace(wordToRemove, "")
 
-while (input != ".EXIT"):
+#def delimiterCleaner(string):
+#  string2 = string.replace("(", " ")
+#  string3 = string2.replace(")", " ")
+#  return (string3.replace(",", " ")).split()
+
+while (UserQuery != ".EXIT"):
   UserQuery = input("$ ")
-  if (';' not in UserQuery): # Invalid command
+  if (';' not in UserQuery and UserQuery != ".EXIT"): # Invalid command
     print("Commands must end with ';'")
   
-  # Creates database
+  # Creates database (working)
   elif ("CREATE DATABASE" in UserQuery):
     dbName = inputCleaner("CREATE DATABASE ")
     os.system('mkdir ' + dbName)
@@ -21,7 +28,7 @@ while (input != ".EXIT"):
   # Deletes database
   elif ("DROP DATABASE" in UserQuery):
     dbName = inputCleaner("DROP DATABASE ")
-    os.system('rmdir ' + dbName)
+    os.system('rm -r ' + dbName)
     print(f"Removed database {dbName}")
   
   # Sets currently active database
@@ -33,12 +40,25 @@ while (input != ".EXIT"):
   # TODO
   # Creates a table with specified name and attributes
   elif ("CREATE TABLE" in UserQuery):
-    tName = inputCleaner("CREATE TABLE ")
+    tInput = inputCleaner("CREATE TABLE ")
+    tName = tInput.split()[0]
+    tRest = tInput.replace(tName, "")
+    tAttrs0 = tRest[2:]
+    tAttrs = tAttrs0[:-1]
+    #tAttrs = tAttrs1.split(",")
 
-  # Deletes table
+    if (workingDB != None):
+      os.system('touch ' + workingDB + '/' + tName + '.txt')
+      #os.system('cd ' + workingDB)
+      filename = workingDB + '/' + tName + '.txt'
+      f = open(filename, 'w')
+      f.write(f"{tName}|{tAttrs}|{workingDB}")
+      f.close
+
+  # Deletes table (working)
   elif ("DROP TABLE" in UserQuery):
     tName = inputCleaner("DROP TABLE ")
-    os.system('rm ' + workingDB + '/' + tName + '.csv')
+    os.system('rm ' + workingDB + '/' + tName + '.txt')
     print(f"Removed table {tName} from database {workingDB}")
   
   # TODO
@@ -50,3 +70,5 @@ while (input != ".EXIT"):
   # Modifies table by adding attribute
   elif ("ALTER TABLE" in UserQuery):
     alterCmd = inputCleaner("ALTER TABLE ")
+
+quit()
