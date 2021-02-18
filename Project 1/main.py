@@ -78,7 +78,7 @@ while (UserQuery != ".EXIT"):
         filename = workingDB + '/' + tName + '.txt'
         f = open(filename, 'w')
         f.write(" |".join(tAttrs))
-        f.close
+        f.close()
         print(f"Created table {tName}.")
       else:
         print(f"Could not create table {tName} because it already exists.")
@@ -103,11 +103,11 @@ while (UserQuery != ".EXIT"):
     selection = inputCleaner("SELECT * FROM ")
     #cmd = shlex.split(f"cat {workingDB}/{selection}.txt")
     #subprocess.Popen(cmd)
-    if databaseExistenceCheck(workingDB):
+    if workingDB != None:
       if tableExistenceCheck(selection):
         f = open(f'{workingDB}/{selection}.txt', 'r')
         print(f.read())
-        f.close
+        f.close()
       else:
         print(f"Could not query table {tName} because it does not exist.")
     else:
@@ -116,7 +116,23 @@ while (UserQuery != ".EXIT"):
   # TODO
   # Modifies table by adding attribute
   elif ("ALTER TABLE" in UserQuery):
-    alterCmd = inputCleaner("ALTER TABLE ")
+    alter = inputCleaner("ALTER TABLE ")
+    tName = alter.split()[0]
+    alterCmd = alter.split()[1]
+    alterRest1 = alter.replace(tName, "")
+    alterRest2 = alterRest1.replace(alterCmd, "")
+    newAttr = alterRest2[2:] # May have issue with leading parentheses
+
+    if workingDB != None:
+      if tableExistenceCheck(tName):
+        f = open(f'{workingDB}/{tName}.txt', 'a')
+        f.write(f" | {newAttr}")
+        f.close()
+        print(f"Modified table {tName}.")
+      else:
+        print(f"Could not modify table {tName} because it does not exist.")
+    else:
+      print("Please specify which database to use.")
   
 
   elif ("DEL" in UserQuery):
