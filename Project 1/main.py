@@ -14,13 +14,13 @@ def inputCleaner(wordToRemove): # Removes ; and command
   return query.replace(wordToRemove, "")
 
 def databaseExistenceCheck(db): # Checks if database exists
-  if db not in subprocess.run(['ls', '|', 'grep', db], capture_output=True, text=True).stdout:
+  if db in subprocess.run(['ls', '|', 'grep', db], capture_output=True, text=True).stdout:
     return 1
   else:
     return 0
 
 def tableExistenceCheck(t): # Checks if table exists
-  if t not in subprocess.run(['ls', workingDB,  '|', 'grep', t], capture_output=True, text=True).stdout:
+  if t in subprocess.run(['ls', workingDB,  '|', 'grep', t], capture_output=True, text=True).stdout:
     return 1
   else:
     return 0
@@ -35,34 +35,33 @@ while (UserQuery != ".EXIT"):
   if (';' not in UserQuery and UserQuery != ".EXIT"): # Invalid command
     print("Commands must end with ';'")
   
-  # Creates database (working)
+  # Creates database
   elif ("CREATE DATABASE" in UserQuery):
     dbName = inputCleaner("CREATE DATABASE ")
-    if databaseExistenceCheck(dbName):
+    if databaseExistenceCheck(dbName) == 0:
       os.system(f'mkdir {dbName}')
       print(f"Created database {dbName}.")
     else:
       print(f"Could not create database {dbName} because it already exists.")
   
-  # Deletes database (working)
+  # Deletes database
   elif ("DROP DATABASE" in UserQuery):
     dbName = inputCleaner("DROP DATABASE ")
-    if databaseExistenceCheck(dbName) == 0:
+    if databaseExistenceCheck(dbName):
       os.system(f'rm -r {dbName}')
       print(f"Removed database {dbName}.")
     else:
       print(f"Could not remove database {dbName} because it does not exist.")
   
-  # Sets currently active database (working)
+  # Sets currently active database
   elif ("USE" in UserQuery):
     workingDB = inputCleaner("USE ")
     #os.system('cd ' + workingDB)
-    if databaseExistenceCheck(workingDB) == 0:
+    if databaseExistenceCheck(workingDB):
       print(f"Using database {workingDB}.")
     else:
       print(f"Could not use database {workingDB} because it does not exist.")
 
-  # TODO
   # Creates a table with specified name and attributes
   elif ("CREATE TABLE" in UserQuery):
     # Splits input into separate strings
@@ -74,9 +73,8 @@ while (UserQuery != ".EXIT"):
     tAttrs = tAttrs1.split(",")
 
     if (workingDB != None):
-      if tableExistenceCheck(tName):
+      if tableExistenceCheck(tName) == 0:
         os.system(f'touch {workingDB}/{tName}.txt')
-        #os.system('cd ' + workingDB)
         filename = workingDB + '/' + tName + '.txt'
         f = open(filename, 'w')
         f.write(" |".join(tAttrs))
@@ -87,11 +85,11 @@ while (UserQuery != ".EXIT"):
     else:
       print("Please specify which database to use.")
 
-  # Deletes table (working)
+  # Deletes table
   elif ("DROP TABLE" in UserQuery):
     tName = inputCleaner("DROP TABLE ")
     if (workingDB != None):
-      if tableExistenceCheck(tName) == 0:
+      if tableExistenceCheck(tName):
         os.system(f'rm {workingDB}/{tName}.txt')
         print(f"Removed table {tName} from database {workingDB}.")
       else:
@@ -105,9 +103,15 @@ while (UserQuery != ".EXIT"):
     selection = inputCleaner("SELECT * FROM ")
     #cmd = shlex.split(f"cat {workingDB}/{selection}.txt")
     #subprocess.Popen(cmd)
-    f = open(f'{workingDB}/{selection}.txt', 'r')
-    print(f.read())
-    f.close
+    if databaseExistenceCheck(workingDB):
+      if tableExistenceCheck(selection):
+        f = open(f'{workingDB}/{selection}.txt', 'r')
+        print(f.read())
+        f.close
+      else:
+        print(f"Could not query table {tName} because it does not exist.")
+    else:
+      print("Please specify which database to use.")
 
   # TODO
   # Modifies table by adding attribute
