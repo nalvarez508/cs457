@@ -38,7 +38,7 @@ while (UserQuery != ".EXIT"):
   # Creates database (working)
   elif ("CREATE DATABASE" in UserQuery):
     dbName = inputCleaner("CREATE DATABASE ")
-    if dbName not in subprocess.run(['ls', '|', 'grep', dbName], capture_output=True, text=True).stdout:
+    if databaseExistenceCheck(dbName):
       os.system('mkdir ' + dbName)
       print(f"Created database {dbName}.")
     else:
@@ -47,7 +47,7 @@ while (UserQuery != ".EXIT"):
   # Deletes database (working)
   elif ("DROP DATABASE" in UserQuery):
     dbName = inputCleaner("DROP DATABASE ")
-    if dbName in subprocess.run(['ls', '|', 'grep', dbName], capture_output=True, text=True).stdout:
+    if databaseExistenceCheck(dbName) == 0:
       os.system('rm -r ' + dbName)
       print(f"Removed database {dbName}.")
     else:
@@ -71,7 +71,7 @@ while (UserQuery != ".EXIT"):
     #tAttrs = tAttrs1.split(",")
 
     if (workingDB != None):
-      if tName not in subprocess.run(['ls', workingDB,  '|', 'grep', tName], capture_output=True, text=True).stdout:
+      if tableExistenceCheck(tName):
         os.system('touch ' + workingDB + '/' + tName + '.txt')
         #os.system('cd ' + workingDB)
         filename = workingDB + '/' + tName + '.txt'
@@ -87,11 +87,14 @@ while (UserQuery != ".EXIT"):
   # Deletes table (working)
   elif ("DROP TABLE" in UserQuery):
     tName = inputCleaner("DROP TABLE ")
-    if tName in subprocess.run(['ls', '|', 'grep', tName], capture_output=True, text=True).stdout:
-      os.system('rm ' + workingDB + '/' + tName + '.txt')
-      print(f"Removed table {tName} from database {workingDB}.")
+    if (workingDB != None):
+      if tableExistenceCheck(tName) == 0:
+        os.system('rm ' + workingDB + '/' + tName + '.txt')
+        print(f"Removed table {tName} from database {workingDB}.")
+      else:
+        print(f"Could not remove table {tName} because it does not exist.")
     else:
-      print(f"Could not remove table {tName} because it does not exist.")
+      print("Please specify which database to use.")
   
   # TODO
   # Returns table elements as specified
