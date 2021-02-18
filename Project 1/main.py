@@ -25,11 +25,6 @@ def tableExistenceCheck(t): # Checks if table exists
   else:
     return 0
 
-#def delimiterCleaner(string):
-#  string2 = string.replace("(", " ")
-#  string3 = string2.replace(")", " ")
-#  return (string3.replace(",", " ")).split()
-
 while (UserQuery != ".EXIT"):
   UserQuery = input("nickQL> ")
   if (';' not in UserQuery and UserQuery != ".EXIT"): # Invalid command
@@ -66,18 +61,18 @@ while (UserQuery != ".EXIT"):
   elif ("CREATE TABLE" in UserQuery):
     # Splits input into separate strings
     tInput = inputCleaner("CREATE TABLE ")
-    tName = tInput.split()[0]
+    tName = tInput.split()[0] # Grabs table name
     tRest = tInput.replace(tName, "")
-    tAttrs0 = tRest[2:]
-    tAttrs1 = tAttrs0[:-1]
-    tAttrs = tAttrs1.split(",")
+    tAttrs0 = tRest[2:] # Leaves only string with attributes
+    tAttrs1 = tAttrs0[:-1] # See above
+    tAttrs = tAttrs1.split(",") # Creates list from attributes
 
     if (workingDB != None):
       if tableExistenceCheck(tName) == 0:
         os.system(f'touch {workingDB}/{tName}.txt')
         filename = workingDB + '/' + tName + '.txt'
         f = open(filename, 'w')
-        f.write(" |".join(tAttrs))
+        f.write(" |".join(tAttrs)) # Writes list to file with pipe delimiter
         f.close()
         print(f"Created table {tName}.")
       else:
@@ -117,16 +112,16 @@ while (UserQuery != ".EXIT"):
   # Modifies table by adding attribute
   elif ("ALTER TABLE" in UserQuery):
     alter = inputCleaner("ALTER TABLE ")
-    tName = alter.split()[0]
-    alterCmd = alter.split()[1]
+    tName = alter.split()[0] # Grabs table name
+    alterCmd = alter.split()[1] # Grabs command (ADD, etc)
     alterRest1 = alter.replace(tName, "")
-    alterRest2 = alterRest1.replace(alterCmd, "")
+    alterRest2 = alterRest1.replace(alterCmd, "") # Left with attributes, currently only supports one
     newAttr = alterRest2[2:] # May have issue with leading parentheses
 
     if workingDB != None:
       if tableExistenceCheck(tName):
         f = open(f'{workingDB}/{tName}.txt', 'a')
-        f.write(f" | {newAttr}")
+        f.write(f" | {newAttr}") # Appends attribute to file with pipe delimiter
         f.close()
         print(f"Modified table {tName}.")
       else:
@@ -134,9 +129,8 @@ while (UserQuery != ".EXIT"):
     else:
       print("Please specify which database to use.")
   
+  # Testing purposes, deletes databases to start fresh
+  #elif ("DEL" in UserQuery):
+  #  os.system('rm -r db_1 db_2')
 
-  elif ("DEL" in UserQuery):
-    os.system('rm -r db_1 db_2')
-
-#os.system('rm -r ' + workingDB)
 quit()
