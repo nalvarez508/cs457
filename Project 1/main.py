@@ -3,7 +3,6 @@
 
 import os
 import subprocess
-from table import Table
 
 workingDB = None
 UserQuery = None
@@ -39,7 +38,7 @@ while (UserQuery != ".EXIT"):
   elif ("CREATE DATABASE" in UserQuery):
     dbName = inputCleaner("CREATE DATABASE ")
     if databaseExistenceCheck(dbName):
-      os.system('mkdir ' + dbName)
+      os.system(f'mkdir {dbName}')
       print(f"Created database {dbName}.")
     else:
       print(f"Could not create database {dbName} because it already exists.")
@@ -48,7 +47,7 @@ while (UserQuery != ".EXIT"):
   elif ("DROP DATABASE" in UserQuery):
     dbName = inputCleaner("DROP DATABASE ")
     if databaseExistenceCheck(dbName) == 0:
-      os.system('rm -r ' + dbName)
+      os.system(f'rm -r {dbName}')
       print(f"Removed database {dbName}.")
     else:
       print(f"Could not remove database {dbName} because it does not exist.")
@@ -72,7 +71,7 @@ while (UserQuery != ".EXIT"):
 
     if (workingDB != None):
       if tableExistenceCheck(tName):
-        os.system('touch ' + workingDB + '/' + tName + '.txt')
+        os.system(f'touch {workingDB}/{tName}.txt')
         #os.system('cd ' + workingDB)
         filename = workingDB + '/' + tName + '.txt'
         f = open(filename, 'w')
@@ -89,7 +88,7 @@ while (UserQuery != ".EXIT"):
     tName = inputCleaner("DROP TABLE ")
     if (workingDB != None):
       if tableExistenceCheck(tName) == 0:
-        os.system('rm ' + workingDB + '/' + tName + '.txt')
+        os.system(f'rm {workingDB}/{tName}.txt')
         print(f"Removed table {tName} from database {workingDB}.")
       else:
         print(f"Could not remove table {tName} because it does not exist.")
@@ -99,7 +98,8 @@ while (UserQuery != ".EXIT"):
   # TODO
   # Returns table elements as specified
   elif ("SELECT *" in UserQuery):
-    selection = inputCleaner("SELECT * ")
+    selection = inputCleaner("SELECT * FROM ")
+    os.system(f'cat {workingDB}/{selection}.txt')
 
   # TODO
   # Modifies table by adding attribute
