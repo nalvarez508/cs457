@@ -15,21 +15,27 @@ def inputCleaner(wordToRemove): # Removes ; and command
 #  return (string3.replace(",", " ")).split()
 
 while (UserQuery != ".EXIT"):
-  UserQuery = input("$ ")
+  UserQuery = input("nickQL> ")
   if (';' not in UserQuery and UserQuery != ".EXIT"): # Invalid command
     print("Commands must end with ';'")
   
   # Creates database (working)
   elif ("CREATE DATABASE" in UserQuery):
     dbName = inputCleaner("CREATE DATABASE ")
-    os.system('mkdir ' + dbName)
-    print(f"Created database {dbName}")
+    if dbName != os.system("ls | grep '" + dbName + "'"):
+      os.system('mkdir ' + dbName)
+      print(f"Created database {dbName}")
+    else:
+      print(f"Could not create {dbName} because it already exists.")
   
   # Deletes database
   elif ("DROP DATABASE" in UserQuery):
     dbName = inputCleaner("DROP DATABASE ")
-    os.system('rm -r ' + dbName)
-    print(f"Removed database {dbName}")
+    if dbName != os.system("ls | grep '" + dbName + "'"):
+      os.system('rm -r ' + dbName)
+      print(f"Removed database {dbName}")
+    else:
+      print(f"Could not remove {dbName} because it does not exist.")
   
   # Sets currently active database
   elif ("USE" in UserQuery):
@@ -71,4 +77,5 @@ while (UserQuery != ".EXIT"):
   elif ("ALTER TABLE" in UserQuery):
     alterCmd = inputCleaner("ALTER TABLE ")
 
+#os.system('rm -r ' + workingDB)
 quit()
