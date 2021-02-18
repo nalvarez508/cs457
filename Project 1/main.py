@@ -1,4 +1,8 @@
+# Nick Alvarez, CS 657, PA1, Spring 21
+# Python 3.7+ required.
+
 import os
+import subprocess
 from table import Table
 
 workingDB = None
@@ -22,22 +26,22 @@ while (UserQuery != ".EXIT"):
   # Creates database (working)
   elif ("CREATE DATABASE" in UserQuery):
     dbName = inputCleaner("CREATE DATABASE ")
-    if dbName != os.system("ls | grep '" + dbName + "'"):
+    if dbName not in subprocess.run(['ls', '|', 'grep', dbName], capture_output=True, text=True).stdout:
       os.system('mkdir ' + dbName)
       print(f"Created database {dbName}")
     else:
       print(f"Could not create {dbName} because it already exists.")
   
-  # Deletes database
+  # Deletes database (working)
   elif ("DROP DATABASE" in UserQuery):
     dbName = inputCleaner("DROP DATABASE ")
-    if dbName != os.system("ls | grep '" + dbName + "'"):
+    if dbName in subprocess.run(['ls', '|', 'grep', dbName], capture_output=True, text=True).stdout:
       os.system('rm -r ' + dbName)
       print(f"Removed database {dbName}")
     else:
       print(f"Could not remove {dbName} because it does not exist.")
   
-  # Sets currently active database
+  # Sets currently active database (working)
   elif ("USE" in UserQuery):
     workingDB = inputCleaner("USE ")
     #os.system('cd ' + workingDB)
@@ -76,6 +80,10 @@ while (UserQuery != ".EXIT"):
   # Modifies table by adding attribute
   elif ("ALTER TABLE" in UserQuery):
     alterCmd = inputCleaner("ALTER TABLE ")
+  
+
+  elif ("DEL" in UserQuery):
+    os.system('rm -r db_1 db_2')
 
 #os.system('rm -r ' + workingDB)
 quit()
