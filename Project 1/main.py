@@ -2,6 +2,7 @@
 # Python 3.7+ required.
 
 import os
+import shlex
 import subprocess
 
 workingDB = None
@@ -56,7 +57,10 @@ while (UserQuery != ".EXIT"):
   elif ("USE" in UserQuery):
     workingDB = inputCleaner("USE ")
     #os.system('cd ' + workingDB)
-    print(f"Using database {workingDB}.")
+    if databaseExistenceCheck(workingDB) == 0:
+      print(f"Using database {workingDB}.")
+    else:
+      print(f"Could not use database {workingDB} because it does not exist.")
 
   # TODO
   # Creates a table with specified name and attributes
@@ -66,8 +70,8 @@ while (UserQuery != ".EXIT"):
     tName = tInput.split()[0]
     tRest = tInput.replace(tName, "")
     tAttrs0 = tRest[2:]
-    tAttrs = tAttrs0[:-1]
-    #tAttrs = tAttrs1.split(",")
+    tAttrs1 = tAttrs0[:-1]
+    tAttrs = tAttrs1.split(",")
 
     if (workingDB != None):
       if tableExistenceCheck(tName):
@@ -75,7 +79,7 @@ while (UserQuery != ".EXIT"):
         #os.system('cd ' + workingDB)
         filename = workingDB + '/' + tName + '.txt'
         f = open(filename, 'w')
-        f.write(f"{tAttrs}|{workingDB}")
+        f.write(" |".join(tAttrs))
         f.close
         print(f"Created table {tName}.")
       else:
@@ -99,7 +103,11 @@ while (UserQuery != ".EXIT"):
   # Returns table elements as specified
   elif ("SELECT *" in UserQuery):
     selection = inputCleaner("SELECT * FROM ")
-    os.system(f'cat {workingDB}/{selection}.txt')
+    #cmd = shlex.split(f"cat {workingDB}/{selection}.txt")
+    #subprocess.Popen(cmd)
+    f = open(f'{workingDB}/{selection}.txt', 'r')
+    print(f.read())
+    f.close
 
   # TODO
   # Modifies table by adding attribute
