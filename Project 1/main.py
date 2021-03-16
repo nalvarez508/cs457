@@ -104,7 +104,7 @@ while (UserQuery != ".EXIT"):
         print(f.read())
         f.close()
       else:
-        print(f"Could not query table {tName} because it does not exist.")
+        print(f"Could not query table {selection} because it does not exist.")
     else:
       print("Please specify which database to use.")
 
