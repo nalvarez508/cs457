@@ -7,6 +7,7 @@ import os
 import subprocess
 import dbutils
 
+# Inserts a record into the table
 def insertTuple(UserQuery, workingDB):
   tInput = dbutils.inputCleaner("insert into ", UserQuery)
 
@@ -29,6 +30,7 @@ def insertTuple(UserQuery, workingDB):
   else:
     print("Please specify which database to use.")
 
+# Updates a record in the table
 def updateTuple(UserQuery, workingDB):
   tInput = dbutils.inputCleaner("update ", UserQuery)
 
@@ -78,5 +80,54 @@ def updateTuple(UserQuery, workingDB):
       print(f"{mods} record(s) modified in {tName}.")
     else:
       print(f"Could not update values in {tName} because it does not exist.")
+  else:
+    print("Please specify which database to use.")
+
+# Removes a record from the table
+def deleteTuple(UserQuery, workingDB):
+  tInput = dbutils.inputCleaner("delete from ", UserQuery)
+
+  tName = tInput.split()[0] # Grabs table name
+  whereColumn = tInput.split()[2] # Gets "where" column
+  whereRecord = tInput.split()[4]#.replace("'", "") # Gets "where" record
+
+  #TODO
+  #Add check for = vs other operands
+
+  if (workingDB != None):
+    if dbutils.tableExistenceCheck(tName, workingDB) == 1:
+      filename = workingDB + '/' + tName + '.txt'
+
+      # No way to modify middle of file, so we recreate it
+      f = open(filename, 'r')
+      tempFile = f.readlines()
+      f.close()
+
+      count = 0
+      mods = 0
+      whereColumnNum = 0
+      for line in tempFile:
+        if (count == 0): # Headers
+          columnList = line.split()
+          del columnList[1::3]
+          whereColumnNum = columnList.index(whereColumn)
+        if (count > 0): # Values
+          tupleDetails = line.split()
+          if (tupleDetails[whereColumnNum] == whereRecord):
+            tempFile[count] = None
+            mods += 1
+        count += 1
+      
+      os.system(f'truncate -s 0 {workingDB}/{tName}.txt')
+
+      f = open(filename, 'w')
+      for line in tempFile:
+        if (line != None):
+          f.write(line)
+      f.close()
+
+      print(f"{mods} record(s) removed in {tName}.")
+    else:
+      print(f"Could not remove values in {tName} because it does not exist.")
   else:
     print("Please specify which database to use.")
