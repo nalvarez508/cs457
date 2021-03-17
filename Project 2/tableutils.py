@@ -11,8 +11,8 @@ def insertTuple(UserQuery, workingDB):
   tInput = dbutils.inputCleaner("insert into ", UserQuery)
 
   tName = tInput.split()[0] # Grabs table name
-  tRest = tInput.replace(tName, "").replace(" values", "")
-  tAttrs0 = tRest[2:] # Leaves only string with attributes
+  tRest = tInput.replace(tName, "").replace(" values", "")#.replace('\t', "").replace(" ", "")
+  tAttrs0 = tRest[1:] # Leaves only string with attributes
   tAttrs1 = tAttrs0[:-1] # See above
   tAttrs = tAttrs1.split(",") # Creates list from attributes
 
@@ -20,6 +20,7 @@ def insertTuple(UserQuery, workingDB):
     if dbutils.tableExistenceCheck(tName, workingDB) == 1:
       filename = workingDB + '/' + tName + '.txt'
       f = open(filename, 'a')
+      f.write('\n')
       f.write(" |".join(tAttrs)) # Writes list to file with pipe delimiter
       f.close()
       print(f"1 new record inserted into {tName}.")
@@ -43,7 +44,7 @@ def updateTuple(UserQuery, workingDB):
 
       # No way to modify middle of file, so we recreate it
       f = open(filename, 'r')
-      tempFile = f.read().splitlines()
+      tempFile = f.readlines()
       f.close()
 
       count = 0
@@ -53,14 +54,19 @@ def updateTuple(UserQuery, workingDB):
       for line in tempFile:
         if (count == 0): # Headers
           columnList = line.split()
+          del columnList[1::3]
           setColumnNum = columnList.index(setColumn)
           whereColumnNum = columnList.index(whereColumn)
         if (count > 0): # Values
           tupleDetails = line.split()
           if (tupleDetails[whereColumnNum] == whereRecord):
-            tupleDetails[setColumnNum] == setColumn
+            if ((setColumnNum+2) > len(tupleDetails)):
+              tupleDetails[setColumnNum] = f'{setRecord}\n'
+            else:
+              tupleDetails[setColumnNum] = setRecord
             tempFile[count] = ' '.join(tupleDetails)
             mods += 1
+        count += 1
       
       os.system(f'truncate -s 0 {workingDB}/{tName}.txt')
 
@@ -68,7 +74,7 @@ def updateTuple(UserQuery, workingDB):
       for line in tempFile:
         f.write(line)
       f.close()
-      
+
       print(f"{mods} record(s) modified in {tName}.")
     else:
       print(f"Could not update values in {tName} because it does not exist.")
