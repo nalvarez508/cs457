@@ -121,9 +121,15 @@ while (UserQuery != ".EXIT"):
   
   elif ("UPDATE" in UserQuery.upper()):
     tableutils.updateTuple(UserQuery, workingDB)
+  
+  elif ("DELETE FROM" in UserQuery.upper()):
+    tableutils.deleteTuple(UserQuery, workingDB)
 
   # Testing purposes, deletes databases to start fresh
   elif ("DEL" in UserQuery):
     os.system('rm -r CS457_PA2')
+  
+  else:
+    print("I don't know what you want me to do.")
 
 quit()
