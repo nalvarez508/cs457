@@ -82,7 +82,8 @@ while (UserQuery != ".EXIT"):
   
   # Returns table elements as specified
   elif ("SELECT *" in UserQuery.upper()):
-    selection = dbutils.inputCleaner("SELECT * FROM ", UserQuery)
+    selLower = dbutils.inputCleaner("SELECT * FROM ", UserQuery)
+    selection = dbutils.inputCleaner("select * from ", selLower)
     #cmd = shlex.split(f"cat {workingDB}/{selection}.txt")
     #subprocess.Popen(cmd)
     if workingDB != None:
@@ -117,9 +118,12 @@ while (UserQuery != ".EXIT"):
   
   elif ("INSERT INTO" in UserQuery.upper()):
     tableutils.insertTuple(UserQuery, workingDB)
+  
+  elif ("UPDATE" in UserQuery.upper()):
+    tableutils.updateTuple(UserQuery, workingDB)
 
   # Testing purposes, deletes databases to start fresh
-  #elif ("DEL" in UserQuery):
-  #  os.system('rm -r CS457_PA2')
+  elif ("DEL" in UserQuery):
+    os.system('rm -r CS457_PA2')
 
 quit()
