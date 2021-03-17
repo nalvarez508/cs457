@@ -1,4 +1,4 @@
-# Nick Alvarez, CS 657, PA1, Spring 21
+# Nick Alvarez, CS 657, PA2, Spring 21
 # Python 3.7+ required.
 
 import os
@@ -25,13 +25,13 @@ def tableExistenceCheck(t): # Checks if table exists
   else:
     return 0
 
-while (UserQuery != ".EXIT"):
+while (UserQuery.lower() != ".EXIT"):
   UserQuery = input("nickQL> ")
   if (';' not in UserQuery and UserQuery != ".EXIT"): # Invalid command
     print("Commands must end with ';'")
   
   # Creates database
-  elif ("CREATE DATABASE" in UserQuery):
+  elif ("CREATE DATABASE" in UserQuery.lower()):
     dbName = inputCleaner("CREATE DATABASE ")
     if databaseExistenceCheck(dbName) == 0:
       os.system(f'mkdir {dbName}')
@@ -40,7 +40,7 @@ while (UserQuery != ".EXIT"):
       print(f"Could not create database {dbName} because it already exists.")
   
   # Deletes database
-  elif ("DROP DATABASE" in UserQuery):
+  elif ("DROP DATABASE" in UserQuery.lower()):
     dbName = inputCleaner("DROP DATABASE ")
     if databaseExistenceCheck(dbName):
       os.system(f'rm -r {dbName}')
@@ -49,7 +49,7 @@ while (UserQuery != ".EXIT"):
       print(f"Could not remove database {dbName} because it does not exist.")
   
   # Sets currently active database
-  elif ("USE" in UserQuery):
+  elif ("USE" in UserQuery.lower()):
     workingDB = inputCleaner("USE ")
     #os.system('cd ' + workingDB)
     if databaseExistenceCheck(workingDB):
@@ -58,7 +58,7 @@ while (UserQuery != ".EXIT"):
       print(f"Could not use database {workingDB} because it does not exist.")
 
   # Creates a table with specified name and attributes
-  elif ("CREATE TABLE" in UserQuery):
+  elif ("CREATE TABLE" in UserQuery.lower()):
     # Splits input into separate strings
     tInput = inputCleaner("CREATE TABLE ")
     tName = tInput.split()[0] # Grabs table name
@@ -81,7 +81,7 @@ while (UserQuery != ".EXIT"):
       print("Please specify which database to use.")
 
   # Deletes table
-  elif ("DROP TABLE" in UserQuery):
+  elif ("DROP TABLE" in UserQuery.lower()):
     tName = inputCleaner("DROP TABLE ")
     if (workingDB != None):
       if tableExistenceCheck(tName):
@@ -93,7 +93,7 @@ while (UserQuery != ".EXIT"):
       print("Please specify which database to use.")
   
   # Returns table elements as specified
-  elif ("SELECT *" in UserQuery):
+  elif ("SELECT *" in UserQuery.lower()):
     selection = inputCleaner("SELECT * FROM ")
     #cmd = shlex.split(f"cat {workingDB}/{selection}.txt")
     #subprocess.Popen(cmd)
@@ -108,7 +108,7 @@ while (UserQuery != ".EXIT"):
       print("Please specify which database to use.")
 
   # Modifies table by adding attribute
-  elif ("ALTER TABLE" in UserQuery):
+  elif ("ALTER TABLE" in UserQuery.lower()):
     alter = inputCleaner("ALTER TABLE ")
     tName = alter.split()[0] # Grabs table name
     alterCmd = alter.split()[1] # Grabs command (ADD, etc)
