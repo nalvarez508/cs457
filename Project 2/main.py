@@ -7,6 +7,7 @@ import os
 import shlex
 import subprocess
 import dbutils
+import tableutils
 
 workingDB = None
 UserQuery = None
@@ -114,6 +115,9 @@ while (UserQuery != ".EXIT"):
     else:
       print("Please specify which database to use.")
   
+  elif ("INSERT INTO" in UserQuery.upper()):
+    tableutils.insertTuple(UserQuery, workingDB)
+
   # Testing purposes, deletes databases to start fresh
   #elif ("DEL" in UserQuery):
   #  os.system('rm -r CS457_PA2')
