@@ -62,14 +62,17 @@ def updateTuple(UserQuery, workingDB):
         if (count > 0): # Values
           tupleDetails = line.split()
           if (tupleDetails[whereColumnNum] == whereRecord):
+            # Update data, Add newline if last column in row
             if ((setColumnNum+2) > len(tupleDetails)):
               tupleDetails[setColumnNum] = f'{setRecord}\n'
+            # Update data
             else:
               tupleDetails[setColumnNum] = setRecord
             tempFile[count] = ' '.join(tupleDetails)
             mods += 1
         count += 1
       
+      # Overwriting the file
       os.system(f'truncate -s 0 {workingDB}/{tName}.txt')
 
       f = open(filename, 'w')
@@ -112,6 +115,8 @@ def deleteTuple(UserQuery, workingDB):
           whereColumnNum = columnList.index(whereColumn)
         if (count > 0): # Values
           tupleDetails = line.split()
+
+          # Finds selected rows and deletes them
           def deleteTupleHelper(mods):
             if (operand == 0): # Equality
               # The type checking here handles strings and numbers separately
@@ -120,24 +125,29 @@ def deleteTuple(UserQuery, workingDB):
                 if (tupleDetails[whereColumnNum] == whereRecord):
                   tempFile[count] = None
                   mods += 1
+
               elif (type(tupleDetails[whereColumnNum]) is not str):
                 if (float(tupleDetails[whereColumnNum]) == float(whereRecord)):
                   tempFile[count] = None
                   mods += 1
+
             elif (operand == 1): # Greater than
               if (float(tupleDetails[whereColumnNum]) > float(whereRecord)):
                 tempFile[count] = None
                 mods += 1
+
             elif (operand == -1): # Less than
               if (float(tupleDetails[whereColumnNum]) < float(whereRecord)):
                 tempFile[count] = None
                 mods += 1
+
             #TODO
             # Add != action
             return mods
           mods = deleteTupleHelper(mods)
         count += 1
       
+      # Overwrites the file
       os.system(f'truncate -s 0 {workingDB}/{tName}.txt')
 
       f = open(filename, 'w')

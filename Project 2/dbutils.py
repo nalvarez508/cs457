@@ -23,6 +23,7 @@ def tableExistenceCheck(t, workingDB): # Checks if table exists
   else:
     return 0
 
+# Determines operand and assigns value
 def getOperand(o):
   operand = None
   if (o == '='):
