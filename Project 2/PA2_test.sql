@@ -26,6 +26,8 @@ select * from Product;
 
 select name, price from Product where pid != 2;
 
+-- select pid, name from Product where price < 150;
+
 .exit
 
 -- Expected output
