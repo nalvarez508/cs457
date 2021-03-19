@@ -6,8 +6,10 @@
 import os
 import shlex
 import subprocess
+
 import dbutils
 import tableutils
+import queryutils
 
 workingDB = None
 UserQuery = None
@@ -81,20 +83,11 @@ while (UserQuery != ".EXIT"):
       print("Please specify which database to use.")
   
   # Returns table elements as specified
-  elif ("SELECT *" in UserQuery.upper()):
-    selLower = dbutils.inputCleaner("SELECT * FROM ", UserQuery)
-    selection = dbutils.inputCleaner("select * from ", selLower)
-    #cmd = shlex.split(f"cat {workingDB}/{selection}.txt")
-    #subprocess.Popen(cmd)
-    if workingDB != None:
-      if dbutils.tableExistenceCheck(selection, workingDB):
-        f = open(f'{workingDB}/{selection}.txt', 'r')
-        print(f.read())
-        f.close()
-      else:
-        print(f"Could not query table {selection} because it does not exist.")
+  elif ("SELECT" in UserQuery.upper()):
+    if ("SELECT *" in UserQuery.upper()):
+      queryutils.queryAll(UserQuery, workingDB)
     else:
-      print("Please specify which database to use.")
+      queryutils.querySpecific(UserQuery, workingDB)
 
   # Modifies table by adding attribute
   elif ("ALTER TABLE" in UserQuery.upper()):
@@ -129,7 +122,7 @@ while (UserQuery != ".EXIT"):
   elif ("DEL" in UserQuery):
     os.system('rm -r CS457_PA2')
   
-  else:
+  elif (".EXIT" != UserQuery):
     print("I don't know what you want me to do.")
 
 quit()
