@@ -47,6 +47,9 @@ def querySpecific(UserQuery, workingDB):
         if (count == 0): # Headers
           # Finding the indexes of select and where columns
           columnList = line.split()
+          columnListWithTypes = columnList.copy()
+          del columnListWithTypes[2::3]
+
           del columnList[1::3]
           columnCount = 0
           for word in columnList:
@@ -58,8 +61,7 @@ def querySpecific(UserQuery, workingDB):
 
           # Creating a table header for the selected columns
           for index in selectColumnNums:
-            columnNameString += columnList[index]
-            columnNameString += " | "
+            columnNameString += f"{columnListWithTypes[index]} {columnListWithTypes[index+1]} | "
           queryHeader = columnNameString[:-3]
           listToReturn.append(queryHeader)
 
@@ -69,8 +71,7 @@ def querySpecific(UserQuery, workingDB):
             def queryStringMaker():
               queryString = ""
               for index in selectColumnNums:
-                queryString += tupleDetails[index]
-                queryString += " | "
+                queryString += f"{tupleDetails[index]} | "
               queryResult = queryString[:-3]
               listToReturn.append(queryResult)
             if (operand == 0): # Equality
