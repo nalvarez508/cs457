@@ -91,8 +91,7 @@ def deleteTuple(UserQuery, workingDB):
   whereColumn = tInput.split()[2] # Gets "where" column
   whereRecord = tInput.split()[4]#.replace("'", "") # Gets "where" record
 
-  #TODO
-  #Add check for = vs other operands
+  operand = dbutils.getOperand(tInput.split()[3])
 
   if (workingDB != None):
     if dbutils.tableExistenceCheck(tName, workingDB) == 1:
@@ -113,9 +112,30 @@ def deleteTuple(UserQuery, workingDB):
           whereColumnNum = columnList.index(whereColumn)
         if (count > 0): # Values
           tupleDetails = line.split()
-          if (tupleDetails[whereColumnNum] == whereRecord):
-            tempFile[count] = None
-            mods += 1
+          def deleteTupleHelper(mods):
+            if (operand == 0): # Equality
+              # The type checking here handles strings and numbers separately
+              # Ex. 150 or 150.00 would not find 150.00 or 150, respectively
+              if (type(tupleDetails[whereColumnNum]) is str):
+                if (tupleDetails[whereColumnNum] == whereRecord):
+                  tempFile[count] = None
+                  mods += 1
+              elif (type(tupleDetails[whereColumnNum]) is not str):
+                if (float(tupleDetails[whereColumnNum]) == float(whereRecord)):
+                  tempFile[count] = None
+                  mods += 1
+            elif (operand == 1): # Greater than
+              if (float(tupleDetails[whereColumnNum]) > float(whereRecord)):
+                tempFile[count] = None
+                mods += 1
+            elif (operand == -1): # Less than
+              if (float(tupleDetails[whereColumnNum]) < float(whereRecord)):
+                tempFile[count] = None
+                mods += 1
+            #TODO
+            # Add != action
+            return mods
+          mods = deleteTupleHelper(mods)
         count += 1
       
       os.system(f'truncate -s 0 {workingDB}/{tName}.txt')
