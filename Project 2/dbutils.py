@@ -22,3 +22,15 @@ def tableExistenceCheck(t, workingDB): # Checks if table exists
     return 1
   else:
     return 0
+
+def getOperand(o):
+  operand = None
+  if (o == '='):
+    operand = 0
+  elif (o == '<'):
+    operand = -1
+  elif (o == '>'):
+    operand = 1
+  elif (o == '!='):
+    operand = -3
+  return operand
