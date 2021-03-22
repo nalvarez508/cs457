@@ -4,3 +4,4 @@ Project 1/test.py
 *.docx
 *.zip
 Project 2/Ceph.pdf
+.DS_Store
