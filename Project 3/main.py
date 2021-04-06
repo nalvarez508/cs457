@@ -10,6 +10,7 @@ import subprocess
 import dbutils
 import tableutils
 import queryutils
+import joinutils
 
 workingDB = None
 UserQuery = None
@@ -86,10 +87,7 @@ while (UserQuery != ".EXIT"):
   elif ("SELECT" in UserQuery.upper()):
     if ("SELECT *" in UserQuery.upper()):
       if ("FROM" in UserQuery.upper()):
-        if ("LEFT OUTER JOIN" in UserQuery.upper()):
-          joinutils.leftOuterJoin(UserQuery, workingDB)
-        else:
-          joinutils.innerJoin(UserQuery, workingDB)
+        joinutils.joinTableOpener(UserQuery, workingDB)
       queryutils.queryAll(UserQuery, workingDB)
     else:
       queryutils.querySpecific(UserQuery, workingDB)
