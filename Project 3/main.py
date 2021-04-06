@@ -1,4 +1,4 @@
-# Nick Alvarez, CS 657, PA2, Spring 21
+# Nick Alvarez, CS 657, PA3, Spring 21
 # Python 3.7+ required.
 
 # Main driver file
@@ -85,6 +85,11 @@ while (UserQuery != ".EXIT"):
   # Returns table elements as specified
   elif ("SELECT" in UserQuery.upper()):
     if ("SELECT *" in UserQuery.upper()):
+      if ("FROM" in UserQuery.upper()):
+        if ("LEFT OUTER JOIN" in UserQuery.upper()):
+          joinutils.leftOuterJoin(UserQuery, workingDB)
+        else:
+          joinutils.innerJoin(UserQuery, workingDB)
       queryutils.queryAll(UserQuery, workingDB)
     else:
       queryutils.querySpecific(UserQuery, workingDB)
@@ -120,7 +125,7 @@ while (UserQuery != ".EXIT"):
 
   # Testing purposes, deletes databases to start fresh
   elif ("DEL" in UserQuery):
-    os.system('rm -r CS457_PA2')
+    os.system('rm -r CS457_PA3')
   
   elif (".EXIT" != UserQuery):
     print("I don't know what you want me to do.")
