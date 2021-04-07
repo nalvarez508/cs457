@@ -4,8 +4,6 @@
 # Main driver file
 
 import os
-import shlex
-import subprocess
 
 import dbutils
 import tableutils
@@ -51,7 +49,7 @@ while (UserQuery != ".EXIT"):
   # Creates a table with specified name and attributes
   elif ("CREATE TABLE" in UserQuery.upper()):
     # Splits input into separate strings
-    tInput = dbutils.inputCleaner("CREATE TABLE ", UserQuery)
+    tInput = dbutils.inputCleaner("CREATE TABLE ", UserQuery).replace("create table ", "")
     tName = tInput.split()[0] # Grabs table name
     tRest = tInput.replace(tName, "")
     tAttrs0 = tRest[2:] # Leaves only string with attributes
@@ -86,9 +84,10 @@ while (UserQuery != ".EXIT"):
   # Returns table elements as specified
   elif ("SELECT" in UserQuery.upper()):
     if ("SELECT *" in UserQuery.upper()):
-      if ("FROM" in UserQuery.upper()):
+      if ("." in UserQuery.upper()):
         joinutils.joinTableOpener(UserQuery, workingDB)
-      queryutils.queryAll(UserQuery, workingDB)
+      else:
+        queryutils.queryAll(UserQuery, workingDB)
     else:
       queryutils.querySpecific(UserQuery, workingDB)
 
