@@ -21,7 +21,7 @@ def insertTuple(UserQuery, workingDB):
       filename = workingDB + '/' + tName + '.txt'
       f = open(filename, 'a')
       f.write('\n')
-      f.write(" |".join(tAttrs)) # Writes list to file with pipe delimiter
+      f.write(" | ".join(tAttrs)) # Writes list to file with pipe delimiter
       f.close()
       print(f"1 new record inserted into {tName}.")
     else:
