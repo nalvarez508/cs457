@@ -7,21 +7,18 @@ def joinTableOpener(UserQuery, workingDB):
   if ('LEFT OUTER JOIN' in UserQuery.upper()):
     joinType = 1
   
+  # Removing unnecessary words from command
   selLower = dbutils.inputCleaner("SELECT * FROM ", UserQuery)
   selection = dbutils.inputCleaner("select * from ", selLower)
   selection = selection.replace("inner join", "").replace("left outer join", "")
   commandWords = selection.replace(",","").split()
-  # Employee E, Sales S where E.id = S.employeeID;
-  # Employee E inner join Sales S on E.id = S.employeeID;
 
-  ##### Grabbing values from commands
+  # Grabbing values from commands
   table1Name = commandWords[0]
-  table1Var = commandWords[1]
   table2Name = commandWords[2]
-  table2Var = commandWords[3]
   comparisonOperator = dbutils.getOperand(commandWords[6])
 
-  #### Importing tables into lists
+  # Importing tables into lists
   Table_1 = []
   Table_2 = []
   Table_Join = []
@@ -41,9 +38,12 @@ def joinTableOpener(UserQuery, workingDB):
     print("Please specify which database to use.")
   
   if (exitFlag==0):
+
+    # Finding the index of columns to search
     table1Column = Table_1[0].index(commandWords[5].split(".")[1])
     table2Column = Table_2[0].index(commandWords[7].split(".")[1])
 
+    # Performs comparisons on given data
     def joinOperandFunction(t1, t2):
       if (comparisonOperator == 0): #Equality
         if (type(Table_2[t2].split("|")[table2Column]) is str):
@@ -62,6 +62,7 @@ def joinTableOpener(UserQuery, workingDB):
         if (Table_2[t2].split("|")[table2Column] != Table_1[t1].split("|")[table1Column]):
           Table_Join.append(f'{Table_1[t1]} | {Table_2[t2]}')
 
+    # Join function. Nested for loops to iterate through tables.
     def join():
       Table_1[0] = Table_1[0].rstrip('\n')
       Table_2[0] = Table_2[0].rstrip('\n')
@@ -71,6 +72,7 @@ def joinTableOpener(UserQuery, workingDB):
         for t2 in range(1, len(Table_2)):
           Table_2[t2] = Table_2[t2].rstrip('\n')
           joinOperandFunction(t1, t2)
+        # Left outer join. If program cannot find Table 1 value in the joined Table, we add it with null info for Table 2's values.
         if (joinType == 1):
           if (Table_1[t1].split("|")[table1Column] not in Table_Join[-1].split("|")[table1Column]):
             Table_Join.append(f"{Table_1[t1]} | |")
