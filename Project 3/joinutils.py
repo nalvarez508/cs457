@@ -3,6 +3,7 @@ import os
 
 def joinTableOpener(UserQuery, workingDB):
   joinType = 0
+  exitFlag=0
   if ('LEFT OUTER JOIN' in UserQuery.upper()):
     joinType = 1
   
@@ -18,60 +19,62 @@ def joinTableOpener(UserQuery, workingDB):
   table1Var = commandWords[1]
   table2Name = commandWords[2]
   table2Var = commandWords[3]
-
-  table1Column = commandWords[5].split(".")[1]
-  table2Column = commandWords[7].split(".")[1]
   comparisonOperator = dbutils.getOperand(commandWords[6])
 
   #### Importing tables into lists
   Table_1 = []
   Table_2 = []
-  TableListNames = ['Table_1', 'Table_2']
+  Table_Join = []
+  TableListNames = [Table_1, Table_2]
+  ActualTableNames = [table1Name, table2Name]
   if workingDB != None:
-    for x in TableListNames:
-      if dbutils.tableExistenceCheck(x, workingDB):
-        f = open(f'{workingDB}/{x}.txt', 'r')
+    for x in range(0,2):
+      if dbutils.tableExistenceCheck(ActualTableNames[x], workingDB):
+        f = open(f'{workingDB}/{ActualTableNames[x]}.txt', 'r')
         for line in f:
-          x.append(line) #Turning tables into list of lines
+          TableListNames[x].append(line) #Turning tables into list of lines
         f.close()
       else:
-        print(f"Could not query table {x} because it does not exist.")
+        print(f"Could not query table {ActualTableNames[x]} because it does not exist.")
+        exitFlag=1
   else:
     print("Please specify which database to use.")
+  
+  if (exitFlag==0):
+    table1Column = Table_1[0].index(commandWords[5].split(".")[1])
+    table2Column = Table_2[0].index(commandWords[7].split(".")[1])
 
-  def joinOperandFunction():
-    if (comparisonOperator == 0): #Equality
-      if (type(t2.split()[t2.index(table2Column)]) is str):
-        if (t2.split()[t2.index(table2Column)] == colValue):
-          Table_Join.append(f'{t1} | {t2}')
-      else:
-        if (float(t2.split()[t2.index(table2Column)]) == float(colValue)):
-          Table_Join.append(f'{t1} | {t2}')
-    if (comparisonOperator == 1): #Greater than
-      if (t2.split()[t2.index(table2Column)] > colValue):
-        Table_Join.append(f'{t1} | {t2}')
-    if (comparisonOperator == -1): #Less than
-      if (t2.split()[t2.index(table2Column)] < colValue):
-        Table_Join.append(f'{t1} | {t2}')
-    if (comparisonOperator == -3): #Inequality
-      if (t2.split()[t2.index(table2Column)] != colValue):
-        Table_Join.append(f'{t1} | {t2}')
+    def joinOperandFunction(t1, t2):
+      if (comparisonOperator == 0): #Equality
+        if (type(Table_2[t2].split("|")[table2Column]) is str):
+          if (Table_2[t2].split("|")[table2Column] == Table_1[t1].split("|")[table1Column]):
+            Table_Join.append(f'{Table_1[t1]} | {Table_2[t2]}')
+        else:
+          if (float(Table_2[t2].split("|")[table2Column]) == float(Table_1[t1].split("|")[table1Column])):
+            Table_Join.append(f'{Table_1[t1]} | {Table_2[t2]}')
+      elif (comparisonOperator == 1): #Greater than
+        if (Table_2[t2].split("|")[table2Column] > Table_1[t1].split("|")[table1Column]):
+          Table_Join.append(f'{Table_1[t1]} | {Table_2[t2]}')
+      elif (comparisonOperator == -1): #Less than
+        if (Table_2[t2].split("|")[table2Column] < Table_1[t1].split("|")[table1Column]):
+          Table_Join.append(f'{Table_1[t1]} | {Table_2[t2]}')
+      elif (comparisonOperator == -3): #Inequality
+        if (Table_2[t2].split("|")[table2Column] != Table_1[t1].split("|")[table1Column]):
+          Table_Join.append(f'{Table_1[t1]} | {Table_2[t2]}')
 
-  if (joinType == 0):
-    # Performs inner join, dropping values with no correspondence in other table
-    def innerJoin():
-      Table_Join = []
+    def join():
+      Table_1[0] = Table_1[0].rstrip('\n')
+      Table_2[0] = Table_2[0].rstrip('\n')
+      Table_Join.append(f"{Table_1[0]} | {Table_2[0]}")
       for t1 in range(1, len(Table_1)):
-        colValue = t1.split()[t1.index(table1Column)]
+        Table_1[t1] = Table_1[t1].rstrip("\n")
         for t2 in range(1, len(Table_2)):
-          joinOperandFunction()
+          Table_2[t2] = Table_2[t2].rstrip('\n')
+          joinOperandFunction(t1, t2)
+        if (joinType == 1):
+          if (Table_1[t1].split("|")[table1Column] not in Table_Join[-1].split("|")[table1Column]):
+            Table_Join.append(f"{Table_1[t1]} | |")
       for myTuple in Table_Join:
         print(myTuple)
-
-    innerJoin()
-  elif (joinType == 1):
-    # Performs left outer join, keeping values without any correspondence
-    def leftOuterJoin():
-      Table_Join = []
-
-    leftOuterJoin()
+    
+    join()
