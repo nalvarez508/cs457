@@ -1,10 +1,9 @@
-# Nick Alvarez, CS 657, PA2, Spring 21
+# Nick Alvarez, CS 657, PA3, Spring 21
 # Python 3.7+ required.
 
 # Utility file for table queries
 
 import os
-import subprocess
 import dbutils
 
 # Select *
