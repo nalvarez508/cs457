@@ -1,3 +1,8 @@
+# Nick Alvarez, CS 657, PA4, Spring 21
+# Python 3.7+ required.
+
+# Utility file for table joins
+
 import dbutils
 import os
 
