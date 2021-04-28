@@ -1,4 +1,4 @@
-# Nick Alvarez, CS 657, PA2, Spring 21
+# Nick Alvarez, CS 657, PA4, Spring 21
 # Python 3.7+ required.
 
 # Utility file for input sanitizing, existence checks
@@ -35,3 +35,22 @@ def getOperand(o):
   elif (o == '!='):
     operand = -3
   return operand
+
+# Creates a lock if one does not exist already
+def makeLock(workingDB):
+  if ".lock" in subprocess.run(['ls', workingDB, '|', 'grep ".lock"'], capture_output=True, text=True).stdout:
+    print("Locks found!")
+    return 0
+  else:
+    # [0] is workingDB [1+] are table names
+    # ['CS457_PA3:', 'Employee.txt', 'Sales.txt']
+    tablesToLock = subprocess.run(['ls', workingDB, '|', 'grep ".txt"'], capture_output=True, text=True).stdout.split()
+    tablesToLock.pop(0)
+    print(tablesToLock)
+    #tablesToLock.split(".")
+    #print(tablesToLock)
+    #del tablesToLock[1::2]
+    print(tablesToLock)
+    for name in tablesToLock:
+      os.system(f"touch {workingDB}/{name}.lock")
+    print(subprocess.run(['ls', workingDB], capture_output=True, text=True).stdout)
