@@ -19,8 +19,6 @@ BreakFlag = 0
 isLocked = 1
 userMadeLock = 0
 
-OPERATION_MODE = "CLI"
-
 def commandProcessing():
   global workingDB
   global userMadeLock
@@ -159,7 +157,7 @@ def commandProcessing():
   elif (".EXIT" != UserQuery.upper()):
     print("I don't know what you want me to do.")
 
-if OPERATION_MODE == "FILE":
+try:
   inputFile = open(sys.argv[1])
   for cmd in inputFile:
     if (BreakFlag == 1):
@@ -167,12 +165,13 @@ if OPERATION_MODE == "FILE":
       quit()
     elif ("--" not in cmd):
       if (".EXIT" not in cmd.upper()):
+        if userMadeLock == 0:
+          isLocked = dbutils.checkLock(workingDB) if (workingDB != None) else 1
         UserQuery = cmd.rstrip('\n')
-        commandProcessing(isLocked)
+        commandProcessing()
       else:
         BreakFlag = 1
-      
-elif OPERATION_MODE == "CLI":
+except IndexError:
   while (UserQuery.upper() != ".EXIT"):
     if userMadeLock == 0:
       isLocked = dbutils.checkLock(workingDB) if (workingDB != None) else 1
