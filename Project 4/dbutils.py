@@ -38,19 +38,24 @@ def getOperand(o):
 
 # Creates a lock if one does not exist already
 def makeLock(workingDB):
-  if ".lock" in subprocess.run(['ls', workingDB, '|', 'grep ".lock"'], capture_output=True, text=True).stdout:
-    print("Locks found!")
+  if checkLock(workingDB):
     return 0
   else:
-    # [0] is workingDB [1+] are table names
-    # ['CS457_PA3:', 'Employee.txt', 'Sales.txt']
     tablesToLock = subprocess.run(['ls', workingDB, '|', 'grep ".txt"'], capture_output=True, text=True).stdout.split()
     tablesToLock.pop(0)
-    print(tablesToLock)
-    #tablesToLock.split(".")
-    #print(tablesToLock)
-    #del tablesToLock[1::2]
-    print(tablesToLock)
     for name in tablesToLock:
       os.system(f"touch {workingDB}/{name}.lock")
-    print(subprocess.run(['ls', workingDB], capture_output=True, text=True).stdout)
+    return 1
+
+def checkLock(workingDB):
+  if ".lock" in subprocess.run(['ls', workingDB, '|', 'grep ".lock"'], capture_output=True, text=True).stdout:
+    #print("Locks found!")
+    return 1
+  else:
+    return 0
+
+def releaseLock(workingDB, c):
+  for cmd in c:
+    os.system(cmd)
+  os.system(f"rm {workingDB}/*.lock")
+  #print("Locks removed!")
