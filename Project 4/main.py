@@ -12,14 +12,21 @@ import queryutils
 import joinutils
 
 workingDB = None
-UserQuery = None
+UserQuery = ""
 TableList = [None]
+CommandsToExecuteOnCommit = []
 BreakFlag = 0
+isLocked = 1
+userMadeLock = 0
 
 OPERATION_MODE = "CLI"
 
 def commandProcessing():
-  
+  global workingDB
+  global userMadeLock
+  global isLocked
+  #global CommandsToExecuteOnCommit
+
   if (';' not in UserQuery and UserQuery.upper() != ".EXIT"): # Invalid command
     print("Commands must end with ';'")
   
@@ -78,8 +85,14 @@ def commandProcessing():
     tName = dbutils.inputCleaner("DROP TABLE ", UserQuery)
     if (workingDB != None):
       if dbutils.tableExistenceCheck(tName, workingDB):
-        os.system(f'rm {workingDB}/{tName}.txt')
-        print(f"Removed table {tName} from database {workingDB}.")
+        if isLocked == 0:
+          if userMadeLock:
+            CommandsToExecuteOnCommit.append(f'rm {workingDB}/{tName}.txt')
+          else:
+            os.system(f'rm {workingDB}/{tName}.txt')
+          print(f"Removed table {tName} from database {workingDB}.")
+        else:
+          print(f"Table {tName} is locked!")
       else:
         print(f"Could not remove table {tName} because it does not exist.")
     else:
@@ -106,29 +119,44 @@ def commandProcessing():
 
     if workingDB != None:
       if dbutils.tableExistenceCheck(tName, workingDB):
-        f = open(f'{workingDB}/{tName}.txt', 'a')
-        f.write(f" | {newAttr}") # Appends attribute to file with pipe delimiter
-        f.close()
-        print(f"Modified table {tName}.")
+        if isLocked == 0:
+          f = open(f'{workingDB}/{tName}.txt', 'a')
+          f.write(f" | {newAttr}") # Appends attribute to file with pipe delimiter
+          f.close()
+          print(f"Modified table {tName}.")
+        else:
+          print(f"Table {tName} is locked!")
       else:
         print(f"Could not modify table {tName} because it does not exist.")
     else:
       print("Please specify which database to use.")
   
   elif ("INSERT INTO" in UserQuery.upper()):
-    tableutils.insertTuple(UserQuery, workingDB)
+    tableutils.insertTuple(UserQuery, workingDB, isLocked, userMadeLock, CommandsToExecuteOnCommit)
   
   elif ("UPDATE" in UserQuery.upper()):
-    tableutils.updateTuple(UserQuery, workingDB)
+    tableutils.updateTuple(UserQuery, workingDB, isLocked, userMadeLock, CommandsToExecuteOnCommit)
   
   elif ("DELETE FROM" in UserQuery.upper()):
-    tableutils.deleteTuple(UserQuery, workingDB)
+    tableutils.deleteTuple(UserQuery, workingDB, isLocked, userMadeLock, CommandsToExecuteOnCommit)
+  
+  elif ("BEGIN TRANSACTION" in UserQuery.upper()):
+    userMadeLock = dbutils.makeLock(workingDB)
+    print("Transaction start.")
+  
+  elif ("COMMIT" in UserQuery.upper()):
+    if userMadeLock:
+      dbutils.releaseLock(workingDB, CommandsToExecuteOnCommit)
+      print("Transaction committed.")
+    else:
+      print("Transaction aborted.")
+    userMadeLock = 0
 
   # Testing purposes, deletes databases to start fresh
   elif ("DEL" in UserQuery):
-    os.system('rm -r CS457_PA3')
+    os.system('rm -r CS457_PA4')
   
-  elif (".EXIT" != UserQuery):
+  elif (".EXIT" != UserQuery.upper()):
     print("I don't know what you want me to do.")
 
 if OPERATION_MODE == "FILE":
@@ -140,12 +168,14 @@ if OPERATION_MODE == "FILE":
     elif ("--" not in cmd):
       if (".EXIT" not in cmd.upper()):
         UserQuery = cmd.rstrip('\n')
-        commandProcessing()
+        commandProcessing(isLocked)
       else:
         BreakFlag = 1
       
 elif OPERATION_MODE == "CLI":
   while (UserQuery.upper() != ".EXIT"):
+    if userMadeLock == 0:
+      isLocked = dbutils.checkLock(workingDB) if (workingDB != None) else 1
     UserQuery = input("nickQL> ")
     commandProcessing()
 
